@@ -1,43 +1,36 @@
-import { notFound } from 'next/navigation';
-import Image from 'next/image';
-import Link from 'next/link';
-import { fetchProductById, fetchProducts } from '@/lib/api';
-import { ArrowLeft, Heart } from 'lucide-react';
-import ProductDetailsClient from '@/components/ProductDetailsClient';
+import { notFound } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { fetchProductById, fetchProducts } from "@/lib/api";
+import { ArrowLeft, Heart } from "lucide-react";
+import ProductDetailsClient from "@/components/ProductDetailsClient";
 
 interface ProductPageProps {
-  params: Promise<{ id: string }>;
-}
-
-export async function generateStaticParams() {
-  try {
-    const products = await fetchProducts();
-    return products.map((product) => ({
-      id: product.id.toString(),
-    }));
-  } catch {
-    return [];
-  }
+  params: { id: string };
 }
 
 export async function generateMetadata({ params }: ProductPageProps) {
-  const { id } = await params;
+  const productId = Number(params.id);
+
+  if (Number.isNaN(productId)) {
+    return { title: "Product Not Found - Product Explorer" };
+  }
+
   try {
-    const product = await fetchProductById(Number.parseInt(id));
+    const product = await fetchProductById(productId);
     return {
       title: `${product.title} - Product Explorer`,
       description: product.description,
     };
   } catch {
     return {
-      title: 'Product Not Found - Product Explorer',
+      title: "Product Not Found - Product Explorer",
     };
   }
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const { id } = await params;
-  const productId = Number.parseInt(id);
+  const productId = Number(params.id);
 
   if (Number.isNaN(productId)) {
     notFound();
@@ -49,7 +42,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
   } catch {
     notFound();
   }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <header className="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
@@ -75,7 +67,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               priority
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
-            </div>
+          </div>
 
           <div className="flex flex-col space-y-6">
             <div>
